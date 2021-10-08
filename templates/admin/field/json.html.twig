@@ -1,3 +1,2 @@
 {# @see https://symfony.com/bundles/EasyAdminBundle/current/fields.html#creating-custom-fields #}
-{% set value = entity.instance.id %}
-<a href="{{ 'http://' ~ value }}">{{ value }}</a>
+<pre class="json">{{ field.value|json_encode }}</pre>
