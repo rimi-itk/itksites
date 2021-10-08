@@ -30,7 +30,7 @@ class ListCommand extends AbstractCommand
 
         $table = new Table($this->output);
         $table->setHeaders(['Name', 'Websites']);
-        $table->setColumnStyle(1, (new TableStyle())->setPadType(STR_PAD_LEFT));
+        $table->setColumnStyle(1, (new TableStyle())->setPadType(\STR_PAD_LEFT));
         foreach ($servers as $server) {
             $table->addRow([
                 $server->getName(),

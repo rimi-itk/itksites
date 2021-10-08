@@ -28,7 +28,7 @@ class UpdatesCommand extends AbstractCommand
 
     protected function runCommand(): void
     {
-        $types = array_filter(preg_split('/\s*,\s*/', $this->input->getOption('types'), PREG_SPLIT_NO_EMPTY));
+        $types = array_filter(preg_split('/\s*,\s*/', $this->input->getOption('types'), \PREG_SPLIT_NO_EMPTY));
         $websites = $types ? $this->getWebsitesByTypes($types) : $this->getWebsites();
 
         $detectors = [
@@ -39,7 +39,7 @@ class UpdatesCommand extends AbstractCommand
                     return "cd $siteDirectory && drush pm-list --format=json";
                 },
                 'getData' => function (array $output, Website $website) {
-                    $data = $this->parseJson(implode(PHP_EOL, $output));
+                    $data = $this->parseJson(implode(\PHP_EOL, $output));
 
                     $buckets = [
                         'Enabled' => [],
@@ -51,13 +51,13 @@ class UpdatesCommand extends AbstractCommand
                         $buckets[$item->status][] = $item;
                     }
 
-                    return json_encode($buckets, JSON_THROW_ON_ERROR, 512);
+                    return json_encode($buckets, \JSON_THROW_ON_ERROR, 512);
                 },
             ],
             'drupal' => [
                 'command' => 'drush pm-list --format=json',
                 'getData' => function (array $output) {
-                    $data = $this->parseJson(implode(PHP_EOL, $output));
+                    $data = $this->parseJson(implode(\PHP_EOL, $output));
 
                     $buckets = [
                         'Enabled' => [],
@@ -69,7 +69,7 @@ class UpdatesCommand extends AbstractCommand
                         $buckets[$item->status][] = $item;
                     }
 
-                    return json_encode($buckets, JSON_THROW_ON_ERROR, 512);
+                    return json_encode($buckets, \JSON_THROW_ON_ERROR, 512);
                 },
             ],
         ];

@@ -11,7 +11,7 @@ final class JsonField implements FieldInterface
     use FieldTrait;
 
     /**
-     * @param string|false|null $label
+     * @param null|false|string $label
      */
     public static function new(string $propertyName, $label = null): self
     {

@@ -66,7 +66,7 @@ class GetCommand extends AbstractCommand
                                 if (!$domains) {
                                     $domains = [];
                                 }
-                                foreach (preg_split('/\s+/', trim($matches[1], ';'), -1, PREG_SPLIT_NO_EMPTY) as $domain) {
+                                foreach (preg_split('/\s+/', trim($matches[1], ';'), -1, \PREG_SPLIT_NO_EMPTY) as $domain) {
                                     $domains[] = $domain;
                                 }
                             } elseif (preg_match('/^(?:root|DocumentRoot|proxy_pass)\s+(.+)/', $line, $matches)) {
