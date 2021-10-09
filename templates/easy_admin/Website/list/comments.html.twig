@@ -1,5 +1,9 @@
 {# @see https://symfony.com/bundles/EasyAdminBundle/current/fields.html#creating-custom-fields #}
-{% set value = entity.instance.id %}
+{# @var \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext ea #}
+{# @var \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto field #}
+{# @var \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto entity #}
+{% set item = entity.instance %}
+{% set value = item.comments %}
 <div class="website-comments">
     {% if value %}
         {% set id = 'website-' ~ item.id ~ '-comment' %}

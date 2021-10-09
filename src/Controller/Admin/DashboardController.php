@@ -2,11 +2,13 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\Audience;
 use App\Entity\Server;
 use App\Entity\Website;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -17,7 +19,9 @@ class DashboardController extends AbstractDashboardController
      */
     public function index(): Response
     {
-        return parent::index();
+        $routeBuilder = $this->get(AdminUrlGenerator::class);
+
+        return $this->redirect($routeBuilder->setController(WebsiteCrudController::class)->generateUrl());
     }
 
     public function configureDashboard(): Dashboard
@@ -28,7 +32,15 @@ class DashboardController extends AbstractDashboardController
 
     public function configureMenuItems(): iterable
     {
-        yield MenuItem::linkToCrud('Website', 'fas fa-list', Website::class);
-        yield MenuItem::linkToCrud('Server', 'fas fa-list', Server::class);
+        yield MenuItem::linkToCrud('Website', 'fas fa-globe', Website::class);
+        yield MenuItem::linkToCrud('Server', 'fas fa-server', Server::class);
+        yield MenuItem::section('Misc');
+        yield MenuItem::linkToCrud('Audience', 'fas fa-users', Audience::class);
+        yield MenuItem::section('Export');
+        yield MenuItem::linkToRoute('Website (csv)', 'fas fa-file-csv', 'api_websites_get_collection', [
+            '_format' => 'csv',
+            'pagination' => 'false',
+            'enabled' => 'true',
+        ]);
     }
 }

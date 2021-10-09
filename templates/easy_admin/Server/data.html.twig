@@ -1,16 +1,20 @@
-{% if view == 'list' %}
-    {% for app, info in value %}
-        {% if value[app]['version']|default(false) %}
-            <span class="label label-primary">{{ app }} {{ value[app]['version']|default('–') }}</span>
+{# @see https://symfony.com/bundles/EasyAdminBundle/current/fields.html#creating-custom-fields #}
+{# @var \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext ea #}
+{# @var \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto field #}
+{# @var \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto entity #}
+{% if ea.crud.currentPage == 'index' %}
+    {% for app, info in field.value %}
+        {% if info['version']|default(false) %}
+            <span class="label label-primary">{{ app }} {{ info['version']|default('–') }}</span>
         {% endif %}
     {% endfor %}
-{% elseif view == 'show' %}
+{% elseif ea.crud.currentPage == 'detail' %}
     <table class="table">
-        {% for app, info in value %}
+        {% for app, info in field.value %}
             <tr>
-                {% if value[app]['version']|default(false) %}
+                {% if info['version']|default(false) %}
                     <th>{{ app }}</th>
-                    <td>{{ value[app]['version']|default('–') }}</td>
+                    <td>{{ info['version']|default('–') }}</td>
                 {% endif %}
             </tr>
         {% endfor %}

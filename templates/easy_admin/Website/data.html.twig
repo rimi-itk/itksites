@@ -1,6 +1,12 @@
-{% if view == 'list' %}
+{# @see https://symfony.com/bundles/EasyAdminBundle/current/fields.html#creating-custom-fields #}
+{# @var \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext ea #}
+{# @var \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto field #}
+{# @var \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto entity #}
+{% set item = entity.instance %}
+{% set value = item.data %}
+{% if ea.crud.currentPage == 'index' %}
     {{ value ? '…' : '–' }}
-{% elseif view == 'show' %}
+{% elseif ea.crud.currentPage == 'detail' %}
     {% set data = value %}
 
     <div class="website-data" style="max-height: 32em; overflow: auto;">
@@ -20,7 +26,7 @@
                     <th>Version</th>
                 </thead>
 
-                {% for status, items in data.drupal %}
+                {% for items in data.drupal %}
                     <tbody>
                         {% for item in items %}
                             <tr>
@@ -44,7 +50,7 @@
                     <th>Version</th>
                     <th>Description</th>
                 </thead>
-                {% for status, items in data.symfony %}
+                {% for items in data.symfony %}
                     <tbody>
                         {% for item in items %}
                             <tr>
