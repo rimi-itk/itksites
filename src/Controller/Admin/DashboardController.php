@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Audience;
 use App\Entity\Server;
 use App\Entity\Website;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Config\UserMenu;
@@ -30,6 +31,12 @@ class DashboardController extends AbstractDashboardController
     {
         return Dashboard::new()
             ->setTitle('ITK sites');
+    }
+
+    public function configureAssets(): Assets
+    {
+        return Assets::new()
+            ->addWebpackEncoreEntry('easy_admin');
     }
 
     public function configureMenuItems(): iterable

@@ -41,3 +41,9 @@ bin/console app:website:updates
 Regexp
 
 `https://127.0.0.1:8000/api/websites.jsonld?regexp_type=dru|pal`
+
+
+```sh
+docker-compose run --rm node yarn --cwd /app install
+docker-compose run --rm node yarn --cwd /app build
+```

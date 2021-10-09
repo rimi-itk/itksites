@@ -53,6 +53,7 @@ class WebsiteCrudController extends AbstractCrudController
     {
         $domain = TextField::new('domain')
             ->setTemplatePath('easy_admin/Website/domain.html.twig')
+            ->addCssClass('domain')
         ;
         $documentRoot = TextField::new('documentRoot');
         $type = TextField::new('type')
