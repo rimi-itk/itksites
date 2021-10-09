@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Admin\Field\JsonField;
+use App\Controller\Admin\Filter\WebsiteTypeFilter;
 use App\Entity\Website;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -43,7 +44,7 @@ class WebsiteCrudController extends AbstractCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add('type')
+            ->add(WebsiteTypeFilter::new('type'))
             ->add(EntityFilter::new('server'))
             ->add(EntityFilter::new('audiences'));
     }

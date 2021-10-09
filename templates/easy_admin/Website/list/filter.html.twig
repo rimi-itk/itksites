@@ -6,7 +6,7 @@
 {% macro render_value(value, property, is_iterable=false) %}
     {% if value %}
         {% set filter_value = value.id|default(value.name|default(value)) %}
-        {% set current_filter_value = app.request.get('filters')[property]['value']|default(null) %}
+        {% set current_filter_value = app.request.get('filters')[property]|default(null) %}
         {% set is_filter_applied = is_iterable ? (filter_value in current_filter_value) : (current_filter_value == filter_value) %}
 
         {% if is_filter_applied %}
@@ -16,7 +16,7 @@
                 <i class="fa fa-close"></i>
             </a>
         {% else %}
-            {% set filter_url = current_path({filters: {(property): {comparison: '=', value: is_iterable ? [filter_value] : filter_value}}}) %}
+            {% set filter_url = current_path({filters: {(property): is_iterable ? [filter_value] : filter_value}}) %}
 
             <a href="{{ filter_url }}" title="{{ 'Filter by “%value%”'|trans({'%value%': value}) }}">
                 {{ value }}
