@@ -7,10 +7,12 @@ use App\Entity\Server;
 use App\Entity\Website;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
+use EasyCorp\Bundle\EasyAdminBundle\Config\UserMenu;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class DashboardController extends AbstractDashboardController
 {
@@ -37,10 +39,18 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::section('Misc');
         yield MenuItem::linkToCrud('Audience', 'fas fa-users', Audience::class);
         yield MenuItem::section('Export');
-        yield MenuItem::linkToRoute('Website (csv)', 'fas fa-file-csv', 'api_websites_get_collection', [
+        $url = $this->generateUrl('api_websites_get_collection', [
             '_format' => 'csv',
             'pagination' => 'false',
-            'enabled' => 'true',
+            'enabled' => '1',
+        ]);
+        yield MenuItem::linkToUrl('Website (csv)', 'fas fa-file-csv', $url);
+    }
+
+    public function configureUserMenu(UserInterface $user): UserMenu
+    {
+        return parent::configureUserMenu($user)->setMenuItems([
+            // Remove the logout menu item.
         ]);
     }
 }
