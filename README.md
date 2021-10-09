@@ -2,9 +2,8 @@
 
 ```sh
 docker-compose up -d
-symfony composer install
-symfony console doctrine:migrations:migrate --no-interaction
-symfony local:server:start
+docker-compose exec phpfpm composer install
+bin/console doctrine:migrations:migrate --no-interaction
 ```
 
 Update server data:

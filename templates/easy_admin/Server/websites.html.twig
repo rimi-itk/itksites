@@ -1,0 +1,16 @@
+{# @see https://symfony.com/bundles/EasyAdminBundle/current/fields.html#creating-custom-fields #}
+{# @var \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext ea #}
+{# @var \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto field #}
+{# @var \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto entity #}
+{% if ea.crud.currentPage == 'index' %}
+    <span class="badge badge-secondary">{{ field.value|length }}</span>
+{% elseif ea.crud.currentPage == 'detail' %}
+    <ul class="list-unstyled">
+        {% for website in field.value %}
+            {% set url = ea_url().setController('App\\Controller\\Admin\\WebsiteCrudController') %}
+            <li>
+                <a href="{{ url }}">{{ website.domain }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}

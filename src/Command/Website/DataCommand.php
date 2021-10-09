@@ -31,7 +31,7 @@ class DataCommand extends AbstractCommand
 
     protected function runCommand(): void
     {
-        $types = array_filter(preg_split('/\s*,\s*/', $this->input->getOption('types'), PREG_SPLIT_NO_EMPTY));
+        $types = array_filter(preg_split('/\s*,\s*/', $this->input->getOption('types'), \PREG_SPLIT_NO_EMPTY));
         $keys = $this->input->getOption('key');
         $websites = $types ? $this->getWebsitesByTypes($types) : $this->getWebsites();
 
@@ -143,7 +143,7 @@ class DataCommand extends AbstractCommand
 
                 public function getData(string $output, Website $website): array
                 {
-                    $lines = explode(PHP_EOL, $output);
+                    $lines = explode(\PHP_EOL, $output);
                     $chunks = array_chunk($lines, 4);
                     $data = array_map(
                         static function (array $chunk) {

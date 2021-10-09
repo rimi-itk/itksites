@@ -1,1 +1,6 @@
-<a href="{{ 'http://' ~ value }}">{{ value }}</a>
+{# @see https://symfony.com/bundles/EasyAdminBundle/current/fields.html#creating-custom-fields #}
+{# @var \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext ea #}
+{# @var \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto field #}
+{# @var \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto entity #}
+{% set domain = entity.instance.domain %}
+<a href="{{ 'https://' ~ domain }}">{{ domain }}</a>

@@ -37,7 +37,7 @@ class AddCommand extends AbstractCommand
         if (null === $enabled) {
             throw new RuntimeException('Please specify --enabled.');
         }
-        $enabled = filter_var($enabled, FILTER_VALIDATE_BOOLEAN);
+        $enabled = filter_var($enabled, \FILTER_VALIDATE_BOOLEAN);
 
         $isNew = false;
         $server = $this->serverRepository->findOneBy(['name' => $name]);

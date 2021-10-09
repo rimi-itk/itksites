@@ -77,7 +77,7 @@ class QueryBuilder extends BaseQueryBuilder
                 $queryParameters['fuzzy_query'] = '%'.$lowerSearchQuery.'%';
 
                 $words = [];
-                $tokens = preg_split('/\s+/', $searchQuery, -1, PREG_SPLIT_NO_EMPTY);
+                $tokens = preg_split('/\s+/', $searchQuery, -1, \PREG_SPLIT_NO_EMPTY);
                 foreach ($tokens as $index => $word) {
                     if (preg_match('/(?P<delimiter>[^[:alnum:][:space:]\\\\])(?P<pattern>.*)(?P=delimiter)(?P<matchtype>.*)/', $word, $matches)) {
                         $parameterName = '_regexp_'.$index;

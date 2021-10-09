@@ -1,17 +1,22 @@
-{% macro render_value(value, property, is_iterable = false) %}
+{# @see https://symfony.com/bundles/EasyAdminBundle/current/fields.html#creating-custom-fields #}
+{# @var \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext ea #}
+{# @var \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto field #}
+{# @var \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto entity #}
+
+{% macro render_value(value, property, is_iterable=false) %}
     {% if value %}
         {% set filter_value = value.id|default(value.name|default(value)) %}
-        {% set current_filter_value = app.request.get('filters')[property]['value']|default(null) %}
+        {% set current_filter_value = app.request.get('filters')[property]|default(null) %}
         {% set is_filter_applied = is_iterable ? (filter_value in current_filter_value) : (current_filter_value == filter_value) %}
 
         {% if is_filter_applied %}
-            {% set filter_url = current_path({filters: {(property): null }}) %}
+            {% set filter_url = current_path({filters: {(property): null}}) %}
             {{ value }}
             <a class="action-filters-reset" href="{{ filter_url }}" title="{{ 'Remove filter by “%value%”'|trans({'%value%': value}) }}">
                 <i class="fa fa-close"></i>
             </a>
         {% else %}
-            {% set filter_url = current_path({filters: {(property): {comparison: '=', value: is_iterable ? [filter_value] : filter_value}}}) %}
+            {% set filter_url = current_path({filters: {(property): is_iterable ? [filter_value] : filter_value}}) %}
 
             <a href="{{ filter_url }}" title="{{ 'Filter by “%value%”'|trans({'%value%': value}) }}">
                 {{ value }}
@@ -21,13 +26,13 @@
     {% endif %}
 {% endmacro %}
 
-<div class="website-{{ field_options.property }}">
-    {% if value is iterable %}
-        {% for item in value -%}
+<div class="website-{{ field.property }}">
+    {% if field.value is iterable %}
+        {% for item in field.value -%}
             {% if not loop.first %}, {% endif %}
-            {{ _self.render_value(item, field_options.property, true) }}
+            {{ _self.render_value(item, field.property, true) }}
         {%- endfor %}
     {% else %}
-        {{ _self.render_value(value, field_options.property) }}
+        {{ _self.render_value(field.value, field.property) }}
     {% endif %}
 </div>

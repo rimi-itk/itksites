@@ -70,7 +70,7 @@ abstract class AbstractCommand extends Command
         if (!is_scalar($message)) {
             $message = json_encode(
                 $message,
-                JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE,
+                \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE,
                 512
             );
         }
@@ -237,7 +237,7 @@ abstract class AbstractCommand extends Command
     protected function parseJson(string $json): ?array
     {
         try {
-            return json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+            return json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
         } catch (JsonException $exception) {
             return null;
         }
@@ -249,7 +249,7 @@ abstract class AbstractCommand extends Command
             $args = array_map(static function ($arg) {
                 return is_scalar($arg)
                     ? $arg
-                    : json_encode($arg, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE, 512);
+                    : json_encode($arg, \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE, 512);
             }, \func_get_args());
             \call_user_func_array([$this->output, 'writeln'], $args);
         }

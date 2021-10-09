@@ -1,5 +1,9 @@
-{% if item.data.git|default(false) %}
-    {% for chunk in item.data.git %}
+{# @see https://symfony.com/bundles/EasyAdminBundle/current/fields.html#creating-custom-fields #}
+{# @var \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext ea #}
+{# @var \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto field #}
+{# @var \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto entity #}
+{% if entity.instance.data.git|default(false) %}
+    {% for chunk in entity.instance.data.git %}
         {% if not loop.first %}
             <hr/>
         {% endif %}
