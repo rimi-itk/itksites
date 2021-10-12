@@ -252,7 +252,7 @@ class Website
     /**
      * Get type.
      */
-    public function getType(): string
+    public function getType(): ?string
     {
         return $this->type;
     }
@@ -272,7 +272,7 @@ class Website
     /**
      * Get version.
      */
-    public function getVersion(): string
+    public function getVersion(): ?string
     {
         return $this->version;
     }
