@@ -35,7 +35,7 @@ class DataCommand extends AbstractCommand
         $keys = $this->input->getOption('key');
         $websites = $types ? $this->getWebsitesByTypes($types) : $this->getWebsites();
 
-        $providers = $this->getProviders();
+        $providers = iterator_to_array($this->getProviders());
 
         foreach ($websites as $website) {
             $this->info('Domain {domain}', ['domain' => $website->getDomain()]);
@@ -68,105 +68,103 @@ class DataCommand extends AbstractCommand
     /**
      * @return AbstractDataProvider[]
      */
-    private function getProviders(): array
+    private function getProviders(): iterable
     {
-        return [
-            // Drupal (multisite)
-            new class() extends AbstractDataProvider {
-                protected $key = 'drupal';
+        // Drupal (multisite)
+        yield new class() extends AbstractDataProvider {
+            protected $key = 'drupal';
 
-                public function canHandle(Website $website): bool
-                {
-                    return Website::TYPE_DRUPAL_MULTISITE === $website->getType()
+            public function canHandle(Website $website): bool
+            {
+                return Website::TYPE_DRUPAL_MULTISITE === $website->getType()
                         || Website::TYPE_DRUPAL === $website->getType();
+            }
+
+            public function getCommand(Website $website): string
+            {
+                if (Website::TYPE_DRUPAL_MULTISITE === $website->getType()) {
+                    $siteDirectory = 'sites/'.$website->getDomain();
+
+                    return "cd $siteDirectory && drush pm-list --format=json";
                 }
 
-                public function getCommand(Website $website): string
-                {
-                    if (Website::TYPE_DRUPAL_MULTISITE === $website->getType()) {
-                        $siteDirectory = 'sites/'.$website->getDomain();
+                return 'drush pm-list --format=json';
+            }
 
-                        return "cd $siteDirectory && drush pm-list --format=json";
-                    }
+            public function getData(string $output, Website $website): array
+            {
+                $data = $this->parseJson($output) ?? [];
 
-                    return 'drush pm-list --format=json';
-                }
-
-                public function getData(string $output, Website $website): array
-                {
-                    $data = $this->parseJson($output) ?? [];
-
-                    $buckets = [
+                $buckets = [
                         'Enabled' => [],
                         'Disabled' => [],
                         'Not installed' => [],
                     ];
 
-                    foreach ($data as $item) {
-                        $buckets[$item['status']][] = $item;
-                    }
-
-                    return $buckets;
-                }
-            },
-
-            // Symfony
-            new class() extends AbstractDataProvider {
-                protected $key = 'symfony';
-
-                protected $command = 'composer --working-dir=.. show --format=json';
-
-                public function canHandle(Website $website): bool
-                {
-                    return Website::TYPE_SYMFONY === $website->getType();
+                foreach ($data as $item) {
+                    $buckets[$item['status']][] = $item;
                 }
 
-                public function getData(string $output, Website $website): array
-                {
-                    return $this->parseJson($output) ?? [];
-                }
-            },
+                return $buckets;
+            }
+        };
 
-            // Git
-            new class() extends AbstractDataProvider {
-                protected $key = 'git';
+        // Symfony
+        yield new class() extends AbstractDataProvider {
+            protected $key = 'symfony';
 
-                public function canHandle(Website $website): bool
-                {
-                    return null !== $website->getDocumentRoot();
-                }
+            protected $command = 'composer --working-dir=.. show --format=json';
 
-                public function getCommand(Website $website): string
-                {
-                    return 'for d in $(find '.$website->getProjectDir().' -name .git | xargs dirname); do (cd $d && echo $d && git config --get remote.origin.url && git rev-parse --abbrev-ref HEAD && git rev-parse HEAD); done';
-                }
+            public function canHandle(Website $website): bool
+            {
+                return Website::TYPE_SYMFONY === $website->getType();
+            }
 
-                public function getData(string $output, Website $website): array
-                {
-                    $lines = explode(\PHP_EOL, $output);
-                    $chunks = array_chunk($lines, 4);
-                    $data = array_map(
-                        static function (array $chunk) {
-                            return [
+            public function getData(string $output, Website $website): array
+            {
+                return $this->parseJson($output) ?? [];
+            }
+        };
+
+        // Git
+        yield new class() extends AbstractDataProvider {
+            protected $key = 'git';
+
+            public function canHandle(Website $website): bool
+            {
+                return null !== $website->getDocumentRoot();
+            }
+
+            public function getCommand(Website $website): string
+            {
+                return 'for d in $(find '.$website->getProjectDir().' -name .git | xargs dirname); do (cd $d && echo $d && git config --get remote.origin.url && git rev-parse --abbrev-ref HEAD && git rev-parse HEAD); done';
+            }
+
+            public function getData(string $output, Website $website): array
+            {
+                $lines = explode(\PHP_EOL, $output);
+                $chunks = array_chunk($lines, 4);
+                $data = array_map(
+                    static function (array $chunk) {
+                        return [
                                 'path' => $chunk[0],
                                 'remote' => preg_replace('/\.git$/', '', $chunk[1]),
                                 'branch' => $chunk[2],
                                 'commit' => $chunk[3],
                             ];
-                        },
-                        array_filter($chunks, static function (array $chunk) {
-                            return 4 === \count($chunk);
-                        })
-                    );
+                    },
+                    array_filter($chunks, static function (array $chunk) {
+                        return 4 === \count($chunk);
+                    })
+                );
 
-                    // Sort chunks by length of path
-                    usort($data, static function (array $a, array $b) {
-                        return \strlen($a['path']) - \strlen($b['path']);
-                    });
+                // Sort chunks by length of path
+                usort($data, static function (array $a, array $b) {
+                    return \strlen($a['path']) - \strlen($b['path']);
+                });
 
-                    return $data;
-                }
-            },
-        ];
+                return $data;
+            }
+        };
     }
 }
