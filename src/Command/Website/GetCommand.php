@@ -157,7 +157,7 @@ class GetCommand extends AbstractCommand
                                     ->setServer($server)
                                     ->setEnabled(true)
                                     ->setDocumentRoot($documentRoot)
-                                    ->addData(['containers' => $containers]);
+                                    ->setContainers($containers);
 
                                 $this->info('  '.$website->getDomain());
 

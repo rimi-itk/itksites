@@ -44,6 +44,7 @@ class Website
     public const TYPE_DRUPAL_MULTISITE = 'drupal (multisite)';
     public const TYPE_PROXY = 'proxy';
     public const TYPE_SYMFONY = 'symfony';
+    public const TYPE_SYMFONY_DOCKER_COMPOSE = 'symfony (docker-compose)';
     public const TYPE_UNKNOWN = '🐼'; // Panda face
     public const VERSION_UNKNOWN = '👻'; // Ghost
     /**
@@ -290,14 +291,31 @@ class Website
     /**
      * Get data.
      */
-    public function getData(): ?array
+    public function getData(string $key = null): ?array
     {
-        return $this->data ?? [];
+        $data = $this->data ?? [];
+
+        return null === $key ? $data : ($data[$key] ?? null);
     }
 
     public function addData(array $data): self
     {
         return $this->setData(array_merge($this->getData(), $data));
+    }
+
+    public function setContainers(array $containers): self
+    {
+        return $this->addData(['containers' => $containers]);
+    }
+
+    public function getContainers(): array
+    {
+        return $this->getData('containers') ?? [];
+    }
+
+    public function isContainerized(): bool
+    {
+        return !empty($this->getContainers());
     }
 
     /**

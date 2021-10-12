@@ -32,12 +32,16 @@ class DetectCommand extends AbstractCommand
         $types = $this->input->getOption('type');
         $websites = $types ? $this->getWebsitesByTypes($types) : $this->getWebsites();
 
-        $detectors = $this->getDetectors();
+        $detectors = iterator_to_array($this->getDetectors());
 
         foreach ($websites as $website) {
             $this->info(sprintf('%-40s%-40s', $website->getServerName(), $website->getDomain()));
 
             foreach ($detectors as $detector) {
+                if (!$detector->canHandle($website)) {
+                    continue;
+                }
+
                 $command = 'cd '.$website->getDocumentRoot().' && '.$detector->getCommand($website);
                 $output = $this->runOnServer($website->getServer(), $command);
 
@@ -101,6 +105,40 @@ class DetectCommand extends AbstractCommand
                 $data = $this->parseJson($output);
 
                 return $data['drupal-version'] ?? null;
+            }
+        };
+
+        // Symfony (docker-compose)
+        yield new class(Website::TYPE_SYMFONY_DOCKER_COMPOSE) extends AbstractDetector {
+            public function canHandle(Website $website): bool
+            {
+                return $website->isContainerized() && null !== $this->getPHPContainer($website);
+            }
+
+            public function getCommand(Website $website): string
+            {
+                $service = $this->getPHPContainer($website)['labels']['com.docker.compose.service'] ?? null;
+                if (null !== $service) {
+                    return sprintf('docker-compose exec -T %s bin/console --version 2>/dev/null', $service);
+                }
+
+                return 'false';
+            }
+
+            public function getVersion(string $output, Website $website): ?string
+            {
+                return preg_match('/symfony\s+(?<version>\S+)/i', $output, $matches) ? $matches['version'] : null;
+            }
+
+            protected function getPHPContainer(Website $website)
+            {
+                foreach ($website->getContainers() as $id => $container) {
+                    if (preg_match('/php/', $container['container']['Image'] ?? '')) {
+                        return $container;
+                    }
+                }
+
+                return null;
             }
         };
 
