@@ -63,87 +63,85 @@ class DetectCommand extends AbstractCommand
     /**
      * @return AbstractDetector[]
      */
-    private function getDetectors(): array
+    private function getDetectors(): iterable
     {
-        return [
-            // Proxy
-            new class(Website::TYPE_PROXY) extends AbstractDetector {
-                protected $command = 'true';
+        // Proxy
+        yield new class(Website::TYPE_PROXY) extends AbstractDetector {
+            protected $command = 'true';
 
-                public function getVersion(string $output, Website $website): ?string
-                {
-                    return filter_var($website->getDocumentRoot(), \FILTER_VALIDATE_URL) ? Website::VERSION_UNKNOWN : null;
-                }
-            },
+            public function getVersion(string $output, Website $website): ?string
+            {
+                return filter_var($website->getDocumentRoot(), \FILTER_VALIDATE_URL) ? Website::VERSION_UNKNOWN : null;
+            }
+        };
 
-            // Drupal (multisite)
-            new class(Website::TYPE_DRUPAL_MULTISITE) extends AbstractDetector {
-                public function getCommand(Website $website): string
-                {
-                    $siteDirectory = 'sites/'.$website->getDomain();
+        // Drupal (multisite)
+        yield new class(Website::TYPE_DRUPAL_MULTISITE) extends AbstractDetector {
+            public function getCommand(Website $website): string
+            {
+                $siteDirectory = 'sites/'.$website->getDomain();
 
-                    return "[ -e $siteDirectory ] && cd $siteDirectory && hash drush 2>/dev/null && drush status --format=json";
-                }
+                return "[ -e $siteDirectory ] && cd $siteDirectory && hash drush 2>/dev/null && drush status --format=json";
+            }
 
-                public function getVersion(string $output, Website $website): ?string
-                {
-                    $data = $this->parseJson($output);
+            public function getVersion(string $output, Website $website): ?string
+            {
+                $data = $this->parseJson($output);
 
-                    return $data['drupal-version'] ?? null;
-                }
-            },
+                return $data['drupal-version'] ?? null;
+            }
+        };
 
-            // Drupal
-            new class(Website::TYPE_DRUPAL) extends AbstractDetector {
-                protected $command = 'hash drush 2>/dev/null && drush status --format=json';
+        // Drupal
+        yield new class(Website::TYPE_DRUPAL) extends AbstractDetector {
+            protected $command = 'hash drush 2>/dev/null && drush status --format=json';
 
-                public function getVersion(string $output, Website $website): ?string
-                {
-                    $data = $this->parseJson($output);
+            public function getVersion(string $output, Website $website): ?string
+            {
+                $data = $this->parseJson($output);
 
-                    return $data['drupal-version'] ?? null;
-                }
-            },
+                return $data['drupal-version'] ?? null;
+            }
+        };
 
-            // Symfony 4 and 5
-            new class(Website::TYPE_SYMFONY) extends AbstractDetector {
-                protected $command = '[ -e ../bin/console ] && APP_ENV=prod ../bin/console --version 2>/dev/null';
+        // Symfony 4 and 5
+        yield new class(Website::TYPE_SYMFONY) extends AbstractDetector {
+            protected $command = '[ -e ../bin/console ] && APP_ENV=prod ../bin/console --version 2>/dev/null';
 
-                public function getVersion(string $output, Website $website): ?string
-                {
-                    return preg_match('/symfony\s+(?<version>\S+)/i', $output, $matches) ? $matches['version'] : null;
-                }
-            },
+            public function getVersion(string $output, Website $website): ?string
+            {
+                return preg_match('/symfony\s+(?<version>\S+)/i', $output, $matches) ? $matches['version'] : null;
+            }
+        };
 
-            // Symfony 3
-            new class(Website::TYPE_SYMFONY) extends AbstractDetector {
-                protected $command = '[ -e ../bin/console ] && ../bin/console --env=prod --version 2>/dev/null';
+        // Symfony 3
+        yield new class(Website::TYPE_SYMFONY) extends AbstractDetector {
+            protected $command = '[ -e ../bin/console ] && ../bin/console --env=prod --version 2>/dev/null';
 
-                public function getVersion(string $output, Website $website): ?string
-                {
-                    return preg_match('/symfony\s+(?<version>\S+)/i', $output, $matches) ? $matches['version'] : null;
-                }
-            },
+            public function getVersion(string $output, Website $website): ?string
+            {
+                return preg_match('/symfony\s+(?<version>\S+)/i', $output, $matches) ? $matches['version'] : null;
+            }
+        };
 
-            // Symfony 2
-            new class(Website::TYPE_SYMFONY) extends AbstractDetector {
-                protected $command = '[ -e ../app/console ] && ../app/console --env=prod --version 2>/dev/null';
+        // Symfony 2
+        yield new class(Website::TYPE_SYMFONY) extends AbstractDetector {
+            protected $command = '[ -e ../app/console ] && ../app/console --env=prod --version 2>/dev/null';
 
-                public function getVersion(string $output, Website $website): ?string
-                {
-                    return preg_match('/version\s+(?<version>\S+)/i', $output, $matches) ? $matches['version'] : null;
-                }
-            },
+            public function getVersion(string $output, Website $website): ?string
+            {
+                return preg_match('/version\s+(?<version>\S+)/i', $output, $matches) ? $matches['version'] : null;
+            }
+        };
 
-            // Unknown
-            new class(Website::TYPE_UNKNOWN) extends AbstractDetector {
-                protected $command = 'true';
+        // Unknown
+        yield new class(Website::TYPE_UNKNOWN) extends AbstractDetector {
+            protected $command = 'true';
 
-                public function getVersion(string $output, Website $website): ?string
-                {
-                    return Website::VERSION_UNKNOWN;
-                }
-            },
-        ];
+            public function getVersion(string $output, Website $website): ?string
+            {
+                return Website::VERSION_UNKNOWN;
+            }
+        };
     }
 }
