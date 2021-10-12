@@ -13,7 +13,7 @@ namespace App\Command\Website;
 use App\Command\AbstractCommand;
 use App\Command\Website\Util\AbstractDataProvider;
 use App\Entity\Website;
-use RuntimeException;
+use App\Traits\WebsitePHPContainer;
 use Symfony\Component\Console\Input\InputOption;
 
 class DataCommand extends AbstractCommand
@@ -53,9 +53,6 @@ class DataCommand extends AbstractCommand
 
                     $data = $provider->getData($output, $website);
                     if (null !== $data) {
-                        if (!\is_array($data)) {
-                            throw new RuntimeException(\get_class($provider).' must return an array');
-                        }
                         $this->debug([$key => $data]);
                         $website->addData([$key => $data]);
                         $this->persist($website);
@@ -111,13 +108,40 @@ class DataCommand extends AbstractCommand
 
         // Symfony
         yield new class() extends AbstractDataProvider {
-            protected $key = 'symfony';
+            protected $key = 'composer';
 
             protected $command = 'composer --working-dir=.. show --format=json';
 
             public function canHandle(Website $website): bool
             {
                 return Website::TYPE_SYMFONY === $website->getType();
+            }
+
+            public function getData(string $output, Website $website): array
+            {
+                return $this->parseJson($output) ?? [];
+            }
+        };
+
+        // Symfony (docker-compose)
+        yield new class() extends AbstractDataProvider {
+            use WebsitePHPContainer;
+
+            protected $key = 'composer';
+
+            public function canHandle(Website $website): bool
+            {
+                return $website->isContainerized() && null !== $this->getPHPContainer($website);
+            }
+
+            public function getCommand(Website $website): string
+            {
+                $service = $this->getPHPContainer($website)['labels']['com.docker.compose.service'] ?? null;
+                if (null !== $service) {
+                    return sprintf('docker-compose exec -T %s composer show --format=json', $service);
+                }
+
+                return 'false';
             }
 
             public function getData(string $output, Website $website): array

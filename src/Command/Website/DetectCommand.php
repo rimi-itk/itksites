@@ -13,6 +13,7 @@ namespace App\Command\Website;
 use App\Command\AbstractCommand;
 use App\Command\Website\Util\AbstractDetector;
 use App\Entity\Website;
+use App\Traits\WebsitePHPContainer;
 use Symfony\Component\Console\Input\InputOption;
 
 class DetectCommand extends AbstractCommand
@@ -110,6 +111,8 @@ class DetectCommand extends AbstractCommand
 
         // Symfony (docker-compose)
         yield new class(Website::TYPE_SYMFONY_DOCKER_COMPOSE) extends AbstractDetector {
+            use WebsitePHPContainer;
+
             public function canHandle(Website $website): bool
             {
                 return $website->isContainerized() && null !== $this->getPHPContainer($website);
@@ -128,17 +131,6 @@ class DetectCommand extends AbstractCommand
             public function getVersion(string $output, Website $website): ?string
             {
                 return preg_match('/symfony\s+(?<version>\S+)/i', $output, $matches) ? $matches['version'] : null;
-            }
-
-            protected function getPHPContainer(Website $website)
-            {
-                foreach ($website->getContainers() as $id => $container) {
-                    if (preg_match('/php/', $container['container']['Image'] ?? '')) {
-                        return $container;
-                    }
-                }
-
-                return null;
             }
         };
 
