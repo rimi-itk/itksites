@@ -122,7 +122,7 @@ class DetectCommand extends AbstractCommand
             {
                 $service = $this->getPHPContainer($website)['labels']['com.docker.compose.service'] ?? null;
                 if (null !== $service) {
-                    return sprintf('docker-compose exec -T %s bin/console --version 2>/dev/null', $service);
+                    return sprintf('docker-compose --env-file .env.docker.local -f docker-compose.server.yml exec -T %s bin/console --version 2>/dev/null', $service);
                 }
 
                 return 'false';
@@ -131,6 +131,87 @@ class DetectCommand extends AbstractCommand
             public function getVersion(string $output, Website $website): ?string
             {
                 return preg_match('/symfony\s+(?<version>\S+)/i', $output, $matches) ? $matches['version'] : null;
+            }
+        };
+
+        // Drupal (docker-compose)
+        yield new class(Website::TYPE_DRUPAL_DOCKER_COMPOSE) extends AbstractDetector {
+            use WebsitePHPContainer;
+
+            public function canHandle(Website $website): bool
+            {
+                return $website->isContainerized() && null !== $this->getPHPContainer($website);
+            }
+
+            public function getCommand(Website $website): string
+            {
+                $service = $this->getPHPContainer($website)['labels']['com.docker.compose.service'] ?? null;
+                if (null !== $service) {
+                    return sprintf('docker-compose --env-file .env.docker.local -f docker-compose.server.yml exec -T %s vendor/bin/drush status --format=json 2>/dev/null', $service);
+                }
+
+                return 'false';
+            }
+
+            public function getVersion(string $output, Website $website): ?string
+            {
+                $data = $this->parseJson($output);
+
+                return $data['drupal-version'] ?? null;
+            }
+        };
+
+        // Drupal (docker-compose; drush --root=web)
+        yield new class(Website::TYPE_DRUPAL_DOCKER_COMPOSE) extends AbstractDetector {
+            use WebsitePHPContainer;
+
+            public function canHandle(Website $website): bool
+            {
+                return $website->isContainerized() && null !== $this->getPHPContainer($website);
+            }
+
+            public function getCommand(Website $website): string
+            {
+                $service = $this->getPHPContainer($website)['labels']['com.docker.compose.service'] ?? null;
+                if (null !== $service) {
+                    return sprintf('docker-compose --env-file .env.docker.local -f docker-compose.server.yml exec -T %s vendor/bin/drush --root=web status --format=json 2>/dev/null', $service);
+                }
+
+                return 'false';
+            }
+
+            public function getVersion(string $output, Website $website): ?string
+            {
+                $data = $this->parseJson($output);
+
+                return $data['drupal-version'] ?? null;
+            }
+        };
+
+        // Drupal (docker-compose with drush container)
+        yield new class(Website::TYPE_DRUPAL_DOCKER_COMPOSE_DRUSH) extends AbstractDetector {
+            use WebsitePHPContainer;
+
+            public function canHandle(Website $website): bool
+            {
+                return $website->isContainerized() && null !== $this->getPHPContainer($website);
+            }
+
+            public function getCommand(Website $website): string
+            {
+                $service = $this->getPHPContainer($website)['labels']['com.docker.compose.service'] ?? null;
+                if (null !== $service) {
+                    return sprintf('docker-compose --env-file .env.docker.local -f docker-compose.server.yml run drush status --format=json 2>/dev/null', $service);
+                }
+
+                return 'false';
+            }
+
+            public function getVersion(string $output, Website $website): ?string
+            {
+                $data = $this->parseJson($output);
+
+                return $data['drupal-version'] ?? null;
             }
         };
 

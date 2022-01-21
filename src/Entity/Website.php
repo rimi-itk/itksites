@@ -42,6 +42,8 @@ class Website
 
     public const TYPE_DRUPAL = 'drupal';
     public const TYPE_DRUPAL_MULTISITE = 'drupal (multisite)';
+    public const TYPE_DRUPAL_DOCKER_COMPOSE = 'drupal (docker-compose)';
+    public const TYPE_DRUPAL_DOCKER_COMPOSE_DRUSH = 'drupal (docker-compose with drush container)';
     public const TYPE_PROXY = 'proxy';
     public const TYPE_SYMFONY = 'symfony';
     public const TYPE_SYMFONY_DOCKER_COMPOSE = 'symfony (docker-compose)';

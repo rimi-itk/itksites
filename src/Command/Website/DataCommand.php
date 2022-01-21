@@ -63,7 +63,7 @@ class DataCommand extends AbstractCommand
     }
 
     /**
-     * @return AbstractDataProvider[]
+     * @return AbstractDataProvider[]|iterable
      */
     private function getProviders(): iterable
     {
@@ -138,7 +138,7 @@ class DataCommand extends AbstractCommand
             {
                 $service = $this->getPHPContainer($website)['labels']['com.docker.compose.service'] ?? null;
                 if (null !== $service) {
-                    return sprintf('docker-compose exec -T %s composer show --format=json', $service);
+                    return sprintf('docker-compose --env-file .env.docker.local -f docker-compose.server.yml exec -T %s composer show --format=json', $service);
                 }
 
                 return 'false';
