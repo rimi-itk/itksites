@@ -12,60 +12,81 @@
     <div class="website-data" style="max-height: 32em; overflow: auto;">
 
         {% if data is null %}
-
             {{ '–' }}
-
-        {% elseif data.drupal|default(false) %}
-
-            <table class="table table-sm table-hover">
-                <thead>
-                    <th>Package</th>
-                    <th>Name</th>
-                    <th>Type</th>
-                    <th>Status</th>
-                    <th>Version</th>
-                </thead>
-
-                {% for items in data.drupal %}
-                    <tbody>
-                        {% for item in items %}
-                            <tr>
-                                <td>{{ item.package }}</td>
-                                <td>{{ item.name|default(item.display_name|default('–')) }}</td>
-                                <td>{{ item.type|default('–') }}</td>
-                                <td>{{ item.status }}</td>
-                                <td>{{ item.version }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                {% endfor %}
-
-            </table>
-
-        {% elseif data.symfony|default(false) %}
-
-            <table class="table table-sm table-hover">
-                <thead>
-                    <th>Name</th>
-                    <th>Version</th>
-                    <th>Description</th>
-                </thead>
-                {% for items in data.symfony %}
-                    <tbody>
-                        {% for item in items %}
-                            <tr>
-                                <td>{{ item.name }}</td>
-                                <td>{{ item.version }}</td>
-                                <td>{{ item.description }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                {% endfor %}
-            </table>
         {% else %}
+            {% set dump_data = true %}
 
-            {{ data|json_encode(constant('JSON_PRETTY_PRINT')) }}
+            {% if data.drupal|default(false) %}
+                {% set dump_data = false %}
+                <fieldset>
+                    <legend>Drupal</legend>
 
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <th>Package</th>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Version</th>
+                        </thead>
+
+                        {% for items in data.drupal %}
+                            <tbody>
+                                {% for item in items %}
+                                    <tr>
+                                        <td>{{ item.package }}</td>
+                                        <td>{{ item.name|default(item.display_name|default('–')) }}</td>
+                                        <td>{{ item.type|default('–') }}</td>
+                                        <td>{{ item.status }}</td>
+                                        <td>{{ item.version }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        {% endfor %}
+                    </table>
+                </fieldset>
+            {% endif %}
+
+            {% if data.composer|default(false) %}
+                {% set dump_data = false %}
+                <fieldset>
+                    <legend>Composer</legend>
+
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <th>Name</th>
+                            <th>Version</th>
+                            <th>Description</th>
+                        </thead>
+                        {% for items in data.composer %}
+                            <tbody>
+                                {% for item in items %}
+                                    <tr>
+                                        <td>{{ item.name }}</td>
+                                        <td>{{ item.version }}</td>
+                                        <td>{{ item.description }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        {% endfor %}
+                    </table>
+                </fieldset>
+            {% endif %}
+
+            {% if data.containers|default(false) %}
+                {% set dump_data = false %}
+                <fieldset>
+                    <legend>Containers</legend>
+
+                    {% for container in data.containers %}
+                        <pre><code>{{ container|json_encode(constant('JSON_PRETTY_PRINT')) }}</code></pre>
+                    {% endfor %}
+                </fieldset>
+            {% endif %}
+
+            {% if dump_data %}
+                <pre><code>{{ data|json_encode(constant('JSON_PRETTY_PRINT')) }}</code></pre>
+            {% endif %}
         {% endif %}
 
     </div>

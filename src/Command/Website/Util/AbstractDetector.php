@@ -28,6 +28,8 @@ abstract class AbstractDetector
      */
     protected $command;
 
+    protected bool $containerized = false;
+
     /**
      * AbstractDetector constructor.
      */
@@ -39,6 +41,11 @@ abstract class AbstractDetector
     public function getType(): string
     {
         return $this->type;
+    }
+
+    public function canHandle(Website $website): bool
+    {
+        return !($this->containerized xor $website->isContainerized());
     }
 
     public function getCommand(Website $website): string

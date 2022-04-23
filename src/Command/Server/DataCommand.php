@@ -57,6 +57,18 @@ class DataCommand extends AbstractCommand
                 $this->showException($e, $server);
             }
 
+            try {
+                $data['docker'] = $this->getDockerData($server);
+            } catch (Exception $e) {
+                $this->showException($e, $server);
+            }
+
+            try {
+                $data['docker-compose'] = $this->getDockerComposeData($server);
+            } catch (Exception $e) {
+                $this->showException($e, $server);
+            }
+
             $this->debug($data);
 
             $server->setData($data);
@@ -111,6 +123,32 @@ class DataCommand extends AbstractCommand
     private function getMysqlData(Server $server): array
     {
         $cmd = 'mysql -V';
+        $output = $this->runOnServer($server, $cmd);
+        $data = ['output' => $output];
+
+        if (preg_match('@(?P<version>\d+(?:\.\d+){2}(?:-[a-z]+)?)@i', $output, $matches)) {
+            $data['version'] = $matches['version'];
+        }
+
+        return $data;
+    }
+
+    private function getDockerData(Server $server): array
+    {
+        $cmd = 'docker --version';
+        $output = $this->runOnServer($server, $cmd);
+        $data = ['output' => $output];
+
+        if (preg_match('@(?P<version>\d+(?:\.\d+){2}(?:-[a-z]+)?)@i', $output, $matches)) {
+            $data['version'] = $matches['version'];
+        }
+
+        return $data;
+    }
+
+    private function getDockerComposeData(Server $server): array
+    {
+        $cmd = 'docker-compose --version';
         $output = $this->runOnServer($server, $cmd);
         $data = ['output' => $output];
 
