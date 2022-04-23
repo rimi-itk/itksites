@@ -7,10 +7,7 @@
 {% elseif ea.crud.currentPage == 'detail' %}
     <ul class="list-unstyled">
         {% for website in field.value %}
-            {% set url = ea_url()
-                .setController('App\\Controller\\Admin\\WebsiteCrudController')
-                .setEntityId(website.id)
-            %}
+            {% set url = ea_url().setController('App\\Controller\\Admin\\WebsiteCrudController').setEntityId(website.id) %}
             <li>
                 <a href="{{ url }}">{{ website.domain }}</a>
             </li>
