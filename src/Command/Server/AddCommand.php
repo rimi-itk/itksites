@@ -26,30 +26,32 @@ class AddCommand extends AbstractCommand
     protected function configure()
     {
         $this->setDescription('Add a server')
-            ->addArgument('name', InputArgument::REQUIRED, 'The server name')
+            ->addArgument('names', InputArgument::REQUIRED|InputArgument::IS_ARRAY, 'Or or more server names')
             ->addOption('enabled', null, InputOption::VALUE_REQUIRED);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $name = $input->getArgument('name');
+        $names = $input->getArgument('names');
         $enabled = $input->getOption('enabled');
         if (null === $enabled) {
             throw new RuntimeException('Please specify --enabled.');
         }
         $enabled = filter_var($enabled, \FILTER_VALIDATE_BOOLEAN);
 
-        $isNew = false;
-        $server = $this->serverRepository->findOneBy(['name' => $name]);
-        if (null === $server) {
-            $server = (new Server())
-                ->setName($name);
-        }
-        $server->setEnabled($enabled);
-        $this->entityManager->persist($server);
-        $this->entityManager->flush();
+        foreach ($names as $name) {
+            $isNew = false;
+            $server = $this->serverRepository->findOneBy(['name' => $name]);
+            if (null === $server) {
+                $server = (new Server())
+                    ->setName($name);
+            }
+            $server->setEnabled($enabled);
+            $this->entityManager->persist($server);
+            $this->entityManager->flush();
 
-        $output->writeln($isNew ? sprintf('Server %s created', $name) : sprintf('Server %s updated', $name));
+            $output->writeln($isNew ? sprintf('Server %s created', $name) : sprintf('Server %s updated', $name));
+        }
 
         return Command::SUCCESS;
     }
