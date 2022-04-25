@@ -67,7 +67,7 @@ abstract class AbstractCommand extends Command
 
     public function log($level, $message, array $context = []): void
     {
-        if (!is_scalar($message)) {
+        if (!\is_scalar($message)) {
             $message = json_encode(
                 $message,
                 \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE,
@@ -247,7 +247,7 @@ abstract class AbstractCommand extends Command
     {
         if ($this->output->isDebug()) {
             $args = array_map(static function ($arg) {
-                return is_scalar($arg)
+                return \is_scalar($arg)
                     ? $arg
                     : json_encode($arg, \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE, 512);
             }, \func_get_args());
